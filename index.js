@@ -16,12 +16,20 @@ function getArchEnemy(offset = 0, limit = 2) {
 
     const promise = fetch(url, {
         headers: DEFAULT_HEADERS
-    }).then(response => response.json())
+    }).then(response => {
+        if (!response.ok) {
+            throw Error(response.statusText);
+        }
+        return response;
+    })
+    .then(response => {
+        response.json()
+    }).catch(console.error)
 
     const stream = Bacon.fromPromise(promise)
     return stream
 }
 
 getArchEnemy()
-    .flatMap(data => data.artists.items)
+    .map(data => data.artists.items)
     .onValue(output => console.log(output))
